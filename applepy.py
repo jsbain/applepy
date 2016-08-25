@@ -6,16 +6,17 @@
 
 
 import numpy
-import pygame
+#import pygame
 import select
 import socket
 import struct
-import subprocess
+#import subprocess
 import sys
 import time
 import wave
-
-
+import screen
+	
+	
 class Display:
 
     characters = [
@@ -105,8 +106,8 @@ class Display:
     ]
 
     def __init__(self):
-        self.screen = pygame.display.set_mode((560, 384))
-        pygame.display.set_caption("ApplePy")
+        self.screen = screen.Screen(560, 384)
+        #pygame.display.set_caption("ApplePy")
         self.mix = False
         self.flash_time = time.time()
         self.flash_on = False
@@ -118,21 +119,21 @@ class Display:
 
         self.chargen = []
         for c in self.characters:
-            chars = [[pygame.Surface((14, 16)), pygame.Surface((14, 16))],
-                     [pygame.Surface((14, 16)), pygame.Surface((14, 16))]]
+            chars = [[numpy.zeros((14, 16,3)), numpy.zeros((14, 16,3))],
+                     [numpy.zeros((14, 16,3)), numpy.zeros((14, 16,3))]]
             for colour in (0, 1):
                 hue = (255, 255, 255) if colour else (0, 200, 0)
                 for inv in (0, 1):
-                    pixels = pygame.PixelArray(chars[colour][inv])
+                    #pixels = chars[colour][inv]
                     off = hue if inv else (0, 0, 0)
                     on = (0, 0, 0) if inv else hue
                     for row in range(8):
                         b = c[row] << 1
                         for col in range(7):
                             bit = (b >> (6 - col)) & 1
-                            pixels[2 * col][2 * row] = on if bit else off
-                            pixels[2 * col + 1][2 * row] = on if bit else off
-                    del pixels
+                            chars[colour][inv][2 * col][2 * row] = on if bit else off
+                            chars[colour][inv][2 * col + 1][2 * row] = on if bit else off
+                    #del pixels
             self.chargen.append(chars)
 
     def txtclr(self):
@@ -193,7 +194,7 @@ class Display:
 
                 self.screen.blit(self.chargen[ch][self.colour][inv], (2 * (column * 7), 2 * (row * 8)))
             else:
-                pixels = pygame.PixelArray(self.screen)
+                pixels = self.screen.S
                 if not self.high_res:
                     lower, upper = divmod(value, 0x10)
 
@@ -221,7 +222,7 @@ class Display:
 
                 if row < 192 and column < 40:
 
-                    pixels = pygame.PixelArray(self.screen)
+                    pixels = (self.screen.S)
                     msb = value // 0x80
 
                     for b in range(7):
@@ -273,8 +274,8 @@ class Speaker:
     CHECK_INTERVAL = 1000
 
     def __init__(self):
-        pygame.mixer.pre_init(11025, -16, 1)
-        pygame.init()
+        #pygame.mixer.pre_init(11025, -16, 1)
+        #pygame.init()
         self.reset()
 
     def toggle(self, cycle):
@@ -292,8 +293,8 @@ class Speaker:
 
     def play(self):
         sample_array = numpy.int16(self.buffer)
-        sound = pygame.sndarray.make_sound(sample_array)
-        sound.play()
+        #sound = pygame.sndarray.make_sound(sample_array)
+        #sound.play()
         self.reset()
 
     def update(self, cycle):
