@@ -14,8 +14,9 @@ import struct
 import sys
 import time
 import wave
+sys.path.append('.')
 import screen
-	
+pygame=[]
 	
 class Display:
 
@@ -259,6 +260,7 @@ class Display:
 
                     del pixels
 
+
     def flash(self):
         if time.time() - self.flash_time >= 0.5:
             self.flash_on = not self.flash_on
@@ -371,9 +373,12 @@ class Apple2:
         self.softswitches = SoftSwitches(display, speaker, cassette)
 
         listener = socket.socket()
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
         listener.bind(("127.0.0.1", 0))
         listener.listen(0)
-
+        print(str(listener.getsockname()[1]))
+        globals()['_stash']('cpu6502.py --bus {} --rom {}&'.format(str(listener.getsockname()[1]), options.rom))
+        '''
         args = [
             sys.executable,
             "cpu6502.py",
@@ -388,14 +393,14 @@ class Apple2:
             args.extend([
                 "--pc", str(options.pc),
             ])
-        self.core = subprocess.Popen(args)
-
+        #self.core = subprocess.Popen(args)
+        '''
         rs, _, _ = select.select([listener], [], [], 2)
         if not rs:
             print >>sys.stderr, "CPU module did not start"
             sys.exit(1)
         self.cpu, _ = listener.accept()
-
+    
     def run(self):
         update_cycle = 0
         quit = False
@@ -410,7 +415,7 @@ class Apple2:
                 self.display.update(addr, val)
             else:
                 break
-
+            '''
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit = True
@@ -425,11 +430,11 @@ class Apple2:
                         if key == 0x7F:
                             key = 0x08
                         self.softswitches.kbd = 0x80 + (key & 0x7F)
-
+            '''
             update_cycle += 1
             if update_cycle >= 1024:
                 self.display.flash()
-                pygame.display.flip()
+                #pygame.display.flip()
                 if self.speaker:
                     self.speaker.update(cycle)
                 update_cycle = 0
@@ -490,6 +495,8 @@ if __name__ == "__main__":
     display = Display()
     speaker = None if options.quiet else Speaker()
     cassette = Cassette(options.cassette) if options.cassette else None
-
+    display.screen.present('sheet')
+    #for i in range(16):
+    #	display.update(0x400+i,0x41+i)
     apple = Apple2(options, display, speaker, cassette)
     apple.run()

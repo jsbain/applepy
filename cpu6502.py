@@ -694,8 +694,8 @@ class CPU:
         global bus
         bus = socket.socket()
         bus.connect(("127.0.0.1", bus_port))
-
-        while not self.quit:
+        try:
+         while not self.quit:
 
             timeout = 0
             if not self.running:
@@ -725,6 +725,9 @@ class CPU:
                 else:
                     self.ops[op]()
                 count -= 1
+        finally:
+         bus.close()
+         print('closed bus')
 
     def test_run(self, start, end):
         self.program_counter = start
