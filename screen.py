@@ -6,8 +6,8 @@ import Image
 
 class Screen(ui.View):
 	def __init__(self,w,h):
-		self.width=h
-		self.height=w
+		self.width=w
+		self.height=h
 		self.S=numpy.zeros((w,h,3))
 		self.B=io.BytesIO()
 		ui.Image.from_data(self.B.getvalue())

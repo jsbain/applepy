@@ -295,6 +295,12 @@ class Speaker:
 
     def play(self):
         sample_array = numpy.int16(self.buffer)
+        file='temp.wav'
+        wf=wave.open(file,'w')
+        wf.setparams((1, 1, 11025, 0, 'NONE', 'not compressed'))
+        wf.writeframes(sample_array)
+        wf.close()
+        sound.Player(file).play()
         #sound = pygame.sndarray.make_sound(sample_array)
         #sound.play()
         self.reset()

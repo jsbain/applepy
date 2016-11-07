@@ -80,7 +80,7 @@ def run(win):
         if rw == 0:
             cpu.send(chr(read(addr, val)))
         elif rw == 1:
-            write(win, addr, val)
+            write (win, addr, val)
         else:
             break
         try:
